@@ -3,7 +3,8 @@ import "./App.css";
 import Navbar from "./components/Navbar";
 import { saveAs } from "file-saver";
 import Modal from "./components/Modal";
-import developer from "./developer.jpg";
+import LoadingBar from "react-top-loading-bar";
+// import developer from "./developer.jpg";
 let demoData = {
   total: 35467,
   totalHits: 500,
@@ -100,6 +101,7 @@ let demoData = {
 
 function App() {
   let API_KEY = import.meta.env.VITE_API_KEY;
+  let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO;
   const [amt, setAmt] = useState(15);
   const [imgType, setImgType] = useState("photo");
   const [order, setOrder] = useState("popular");
@@ -109,6 +111,9 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [data, setData] = useState(demoData);
+  const [isVideo, setIsVideo] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const inpRef = useRef();
 
@@ -126,14 +131,23 @@ function App() {
 
   const fetchData = async (query, imagetype, order) => {
     setPage(1);
-    query = await query.replaceAll(" ", "+");
-    let response = await fetch(
+    setProgress(10);
+    API_KEY =
       API_KEY +
-        `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`,
+      `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`;
+    query = await query.replaceAll(" ", "+");
+    setProgress(20);
+    let response = await fetch(
+      isVideo
+        ? API_KEY_VIDEO +
+            `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`
+        : API_KEY,
     );
+    setProgress(40);
     let data = await response.json();
+    setProgress(70);
     setData(data);
-    console.log(data);
+    setProgress(100);
   };
 
   const btnClicked = () => {
@@ -161,22 +175,65 @@ function App() {
   };
 
   const downloadImage = (src, name) => {
-    console.log("Image src = ", src);
+    setProgress(30);
     saveAs(src, `${name}.jpg`);
+    setProgress(100);
+  };
+
+  const downloadVideo = async (src, name) => {
+    setProgress(10);
+    try {
+      setProgress(25);
+      const response = await fetch(src);
+      setProgress(50);
+      const blob = await response.blob();
+      setProgress(75);
+      saveAs(blob, `${name}.mp4`);
+      setProgress(100);
+    } catch (error) {
+      console.error("Error downloading video:", error);
+      setProgress(100);
+    }
   };
 
   const modalToggle = () => {
-    console.log("Got triggered");
     setShowModal((prevState) => !prevState);
-    console.log(showModal);
-
-    // console.log("Inside modal toggle function");
-    // console.log("showModal", showModal);
   };
 
   const handleModal = (e, downloadImage, modalToggle) => {
-    setModalData({ e, downloadImage, modalToggle }); // Store the data in state
+    setProgress(30);
+    setModalData({ e, downloadImage, modalToggle, downloadVideo, isVideo }); // Store the data in state
     modalToggle();
+    setProgress(100);
+  };
+
+  const toggleButton = () => {
+    setIsVideo(!isVideo);
+  };
+
+  const prevPageFunc = () => {
+    setProgress(20);
+    page > 1 ? setPage((prevPage) => prevPage - 1) : console.log("error");
+    setProgress(100);
+  };
+
+  const nextPageFunc = () => {
+    setProgress(20);
+    page < Math.ceil(data.hits.length / amt)
+      ? setPage((prevPage) => prevPage + 1)
+      : console.log("error");
+    setProgress(100);
+  };
+
+  const download = (e) => {
+    let waitingValue = isVideo ? 10000 : 2500;
+    setIsDisabled(true);
+    isVideo
+      ? downloadVideo(e.videos.large.url, e.id)
+      : downloadImage(e.webformatURL, e.id);
+    setTimeout(() => {
+      setIsDisabled(false);
+    }, waitingValue);
   };
 
   useEffect(() => {
@@ -189,6 +246,11 @@ function App() {
   }, [page]);
   return (
     <div className="bg-[#212529] text-white">
+      <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <Navbar />
       {/* Controller  */}
       <div className="mt-5 w-full">
@@ -199,6 +261,7 @@ function App() {
               search
             </span>
             <input
+              name="search"
               type="text"
               className="h-9 w-full rounded-3xl border-[1px] border-gray-600 bg-[#2c3034] py-5 pl-12 text-sm outline-none"
               placeholder="Search..."
@@ -235,6 +298,7 @@ function App() {
           <div className="space-x-1">
             <span className="text-[0.9rem]">Amount: </span>
             <input
+              name="amount"
               type="number"
               min="3"
               max="200"
@@ -247,8 +311,8 @@ function App() {
           <div className="space-x-1">
             <span className="text-[0.9rem]">Order: </span>
             <select
-              name="imageType"
-              id="imageType"
+              name="order"
+              id="order"
               className="rounded-lg bg-[#2c3034] px-3 py-1 text-[0.9rem] outline-none"
               onChange={(e) => {
                 setOrder(e.target.value);
@@ -257,6 +321,24 @@ function App() {
               <option value="popular">Popular</option>
               <option value="latest">Latest</option>
             </select>
+          </div>
+          {/* Toggle button  */}
+          <div className="flex items-center space-x-2">
+            <span className="text-[0.9rem]">Videos: </span>
+            <div className="flex h-[1.6rem] w-fit items-center">
+              <button
+                className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
+                  isVideo ? "bg-[#1f1c1c]" : "bg-[#2c3034]"
+                }`}
+                onClick={toggleButton}
+              >
+                <span
+                  className={`absolute left-[0.1rem] top-[50%] h-[1.2rem] w-5 -translate-y-[50%] transform rounded-full shadow-md transition duration-300 ease-in-out ${
+                    isVideo ? "translate-x-[94%]" : ""
+                  } ${isVideo ? "bg-green-200" : "bg-gray-400"}`}
+                ></span>
+              </button>
+            </div>
           </div>
         </div>
         <div className="mt-2 flex items-center justify-center text-xs text-gray-400">
@@ -268,58 +350,66 @@ function App() {
       </div>
       {/* Show Divs  */}
       <div className="mt-4 flex w-full flex-wrap justify-evenly gap-y-7">
-        {data !== null
-          ? data.hits.slice((page - 1) * amt, amt * page).map((e) => {
-              return (
-                <div
-                  className="h-[300px] w-[30%] rounded-xl border border-gray-700"
-                  key={e.id}
-                >
+        {data.hits.length !== 0 ? (
+          data.hits.slice((page - 1) * amt, amt * page).map((e) => {
+            return (
+              <div
+                className="h-[300px] w-[30%] rounded-xl border border-gray-700"
+                key={e.id}
+              >
+                {e.webformatURL !== undefined ? (
                   <img
                     src={e.webformatURL}
                     alt={e.tags}
                     loading="lazy"
                     className="h-[84%] w-full rounded-t-xl object-cover hover:opacity-50"
                   />
-                  <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
-                    <span className="text-sm">
-                      {e.tags.length > 40
-                        ? e.tags.slice(0, 37) + "..."
-                        : e.tags}
+                ) : (
+                  <video
+                    src={e.videos.tiny.url}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    className="h-[84%] w-full"
+                  ></video>
+                )}
+                <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
+                  <span className="text-sm">
+                    {e.tags.length > 40 ? e.tags.slice(0, 37) + "..." : e.tags}
+                  </span>
+                  <div className="">
+                    <span
+                      className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
+                      onClick={() =>
+                        !isDisabled ? download(e) : console.log("Disabled")
+                      }
+                    >
+                      download
                     </span>
-                    <div className="">
-                      <span
-                        className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300"
-                        onClick={() => {
-                          downloadImage(e.webformatURL, e.id);
-                        }}
-                      >
-                        download
-                      </span>
-                      <span
-                        className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300"
-                        onClick={() =>
-                          handleModal(e, downloadImage, modalToggle)
-                        }
-                      >
-                        zoom_in
-                      </span>
-                    </div>
+                    <span
+                      className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300"
+                      onClick={() => handleModal(e, downloadImage, modalToggle)}
+                    >
+                      zoom_in
+                    </span>
                   </div>
                 </div>
-              );
-            })
-          : console.log("Data has not came")}
+              </div>
+            );
+          })
+        ) : (
+          <div>
+            <span>No images found!</span>
+          </div>
+        )}
       </div>
       {Math.ceil(data.hits.length / amt) > 1 && (
         <div className="mx-auto mt-9 flex w-fit items-start space-x-10">
           <button
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={() => {
-              page > 1
-                ? setPage((prevPage) => prevPage - 1)
-                : console.log("error");
-            }}
+            onClick={prevPageFunc}
           >
             <span className="material-symbols-outlined text-xl">
               arrow_back_ios
@@ -327,6 +417,7 @@ function App() {
           </button>
           <div>
             <input
+              name="page"
               type="number"
               min="1"
               max={Math.ceil(data.hits.length / amt)}
@@ -352,11 +443,7 @@ function App() {
           </div>
           <button
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={() => {
-              page < Math.ceil(data.hits.length / amt)
-                ? setPage((prevPage) => prevPage + 1)
-                : console.log("error");
-            }}
+            onClick={nextPageFunc}
           >
             <span
               className="material-symbols-outlined text-xl"
@@ -370,17 +457,28 @@ function App() {
         </div>
       )}
       {/* Footer  */}
-      <div className="flex w-full items-center justify-center space-x-2 bg-[#1f1c1c] py-3 text-sm">
+      <div className="mt-4 flex w-full items-center justify-center space-x-2 bg-[#1f1c1c] py-3 text-sm">
         <span>
           &copy; 2024 PicSeek. All rights reserved. Designed and created by
         </span>
         <span className="font-bold">&#10024; Arbab Zafar &#10024; </span>
-        <img src={developer} alt="developer" className="w-6 rounded-full" />
-        <div className="px-3 space-x-4 flex items-center">
-        <i className="fa-brands fa-instagram cursor-pointer text-[1.35rem] transition-all hover:text-gray-400" onClick={()=> window.open("https://www.instagram.com/arbab.fr/", '_blank')}></i>
-        <i className="fa-brands fa-github cursor-pointer text-[1.35rem] transition-all hover:text-gray-400" onClick={()=> window.open("https://github.com/Arbab-Zafar", '_blank')}></i>
+        {/* <img src={developer} alt="developer" className="w-6 rounded-full" /> */}
+        <div className="flex items-center space-x-4 px-3">
+          <i
+            className="fa-brands fa-instagram cursor-pointer text-[1.35rem] transition-all hover:text-gray-400"
+            onClick={() =>
+              window.open("https://www.instagram.com/arbab.fr/", "_blank")
+            }
+          ></i>
+          <i
+            className="fa-brands fa-github cursor-pointer text-[1.35rem] transition-all hover:text-gray-400"
+            onClick={() =>
+              window.open("https://github.com/Arbab-Zafar", "_blank")
+            }
+          ></i>
         </div>
       </div>
+
       {showModal && <Modal {...modalData} />}
     </div>
   );
