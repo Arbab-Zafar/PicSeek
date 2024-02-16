@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import aufs from "all-url-file-size";
 
 const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
   const [imageDimensions, setImageDimensions] = useState({
@@ -11,6 +12,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     height: "height",
   });
   const [imageSize, setImageSize] = useState("");
+  const [videoSize, setVideoSize] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
   const loadImage = (imageUrl) => {
     const img = new Image();
@@ -48,15 +50,24 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const sizeInBytes = blob.size;
-      let size = (sizeInBytes / 1024).toFixed(1) + "KB";
+      let size = (sizeInBytes / 1024).toFixed(2) + "KB";
       setImageSize(size);
-      if (sizeInBytes > 1024 * 1024) {
-        size = (sizeInBytes / (1024 * 1024)).toFixed(1) + "MB";
+      if (sizeInBytes > 1048576) {
+        size = (sizeInBytes / 1048576).toFixed(2) + "MB";
         setImageSize(size);
       }
     } catch (error) {
       console.error("Error fetching image size:", error);
     }
+  };
+  const getVideoSize = (url) => {
+    aufs(url, "mb")
+      .then((size) => {
+       setVideoSize(`${size.toFixed(2)} MB`)
+      })
+      .catch((error) => {
+        console.error(`Error: ${error.message}`);
+      });
   };
 
   function abc(src) {
@@ -66,7 +77,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
 
   function def(src) {
     loadVideo(src);
-    getImageSize(src);
+    getVideoSize(src);
   }
   let imgDim =
     e.tags.length > 51
@@ -92,17 +103,17 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
         "X" +
         videoDimensions.height +
         ") " +
-        imageSize
+        videoSize
       : e.tags +
         " (" +
         videoDimensions.width +
         "X" +
         videoDimensions.height +
         ") " +
-        imageSize;
+        videoSize;
 
   const download = (e) => {
-    let waitingValue = isVideo ? 10000 : 2500;
+    let waitingValue = isVideo ? 8000 : 2500;
     setIsDisabled(true);
     isVideo
       ? downloadVideo(e.videos.large.url, e.id)
@@ -111,6 +122,11 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
       setIsDisabled(false);
     }, waitingValue);
   };
+
+  useEffect(() => {
+    isVideo ? def(e.videos.large.url) : abc(e.webformatURL);
+  }, []);
+
   return ReactDOM.createPortal(
     <>
       {/* overlay  */}
@@ -118,14 +134,14 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
         className="fixed bottom-0 left-0 right-0 top-0 z-10 bg-[#46424287]"
         onClick={modalToggle}
       ></div>
-      <div className="fixed left-1/2 top-1/2 z-10 h-[474px] w-[640px] -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-[#1f1c1c] text-3xl font-bold text-black">
+      <div className="fixed left-1/2 top-1/2 z-10  w-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-[#1f1c1c] text-3xl font-bold text-black">
         {e.webformatURL !== undefined ? (
           <img
             src={e.webformatURL}
             alt={e.tags}
             loading="lazy"
-            className="h-[84%] w-full object-cover"
-            onLoad={() => abc(e.webformatURL)}
+            className="w-full object-cover"
+            // onLoad={() => abc(e.webformatURL)}
           />
         ) : (
           <video
@@ -135,11 +151,11 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
             loop
             playsInline
             controls
-            className="h-[84%] w-full"
-            onLoadedMetadata={() => def(e.videos.large.url)}
+            className="w-full"
+            // onLoadedMetadata={() => def(e.videos.large.url)}
           ></video>
         )}
-        <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
+        <div className="flex h-[75px] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
           <span className="text-sm">{isVideo ? vidDim : imgDim}</span>
           <div className="">
             <span

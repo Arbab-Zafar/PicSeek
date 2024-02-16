@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "all-url-file-size": "^1.2.1",
     "file-saver": "^2.0.5",
     "gh-pages": "^6.1.1",
     "react": "^18.2.0",

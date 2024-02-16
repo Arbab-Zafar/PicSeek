@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import { saveAs } from "file-saver";
 import Modal from "./components/Modal";
 import LoadingBar from "react-top-loading-bar";
+import Video from "./components/Video";
 // import developer from "./developer.jpg";
 let demoData = {
   total: 35467,
@@ -144,10 +145,11 @@ function App() {
         : API_KEY,
     );
     setProgress(40);
-    let data = await response.json();
+    let dataa = await response.json();
     setProgress(70);
-    setData(data);
+    setData(dataa);
     setProgress(100);
+    console.log(dataa);
   };
 
   const btnClicked = () => {
@@ -226,7 +228,7 @@ function App() {
   };
 
   const download = (e) => {
-    let waitingValue = isVideo ? 10000 : 2500;
+    let waitingValue = isVideo ? 8000 : 2500;
     setIsDisabled(true);
     isVideo
       ? downloadVideo(e.videos.large.url, e.id)
@@ -344,7 +346,7 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-center text-[0.49rem] text-gray-400 sm:text-xs px-1">
+        <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-xs">
           <span className="text-center">
             After making the changes, click the &quot;Done&quot; button to load
             the images!
@@ -368,15 +370,16 @@ function App() {
                     className="h-[84%] w-full rounded-t-xl object-cover hover:opacity-50"
                   />
                 ) : (
-                  <video
+                  // eslint-disable-next-line
+                  <Video
                     src={e.videos.tiny.url}
                     autoPlay
                     muted
                     loop
                     playsInline
                     controls
-                    className="h-[84%] w-full"
-                  ></video>
+                    classes="h-[84%] w-full"
+                  />
                 )}
                 <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
                   <span className="text-[0.7rem] sm:text-sm">
@@ -392,7 +395,7 @@ function App() {
                       download
                     </span>
                     <span
-                      className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 hidden sm:block"
+                      className="material-symbols-outlined hidden cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 sm:block"
                       onClick={() => handleModal(e, downloadImage, modalToggle)}
                     >
                       zoom_in
@@ -460,7 +463,7 @@ function App() {
         </div>
       )}
       {/* Footer  */}
-      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-y-2 space-x-2 bg-[#1f1c1c] py-3 text-[0.65rem] sm:mt-4 sm:text-sm">
+      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-x-2 space-y-2 bg-[#1f1c1c] py-3 text-[0.65rem] sm:mt-4 sm:text-sm">
         <span>&copy; 2024 PicSeek. All rights reserved.</span>
         <div>
           <span>Designed and created by</span>
