@@ -255,15 +255,15 @@ function App() {
       {/* Controller  */}
       <div className="mt-5 w-full">
         {/* Search  */}
-        <div className="flex w-full items-center justify-center gap-10 py-4">
-          <div className="relative flex w-[50%] items-center">
-            <span className="material-symbols-outlined absolute left-[17px]">
+        <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
+          <div className="relative flex w-[70%] items-center sm:w-[50%]">
+            <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
               search
             </span>
             <input
               name="search"
               type="text"
-              className="h-9 w-full rounded-3xl border-[1px] border-gray-600 bg-[#2c3034] py-5 pl-12 text-sm outline-none"
+              className="h-9 w-full rounded-3xl border-[1px] border-gray-600 bg-[#2c3034] py-4 pl-11 text-xs outline-none sm:py-5 sm:pl-12 sm:text-sm"
               placeholder="Search..."
               value={query}
               onChange={(e) => {
@@ -272,20 +272,23 @@ function App() {
             />
           </div>
           <button
-            className="h-9 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-sm outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1"
+            className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
             onClick={btnClicked}
           >
             Done
           </button>
         </div>
-        {/* dghsdgs */}
-        <div className="mt-4 flex w-full justify-around">
+        {/* Actual Controller */}
+        {/* space-x-2 space-y-2 */}
+        <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
           <div className="space-x-1">
-            <span className="text-[0.9rem]">Image Type: </span>
+            <span className="text-[0.65rem] sm:text-[0.9rem]">
+              Image Type:{" "}
+            </span>
             <select
               name="imageType"
               id="imageType"
-              className="rounded-lg bg-[#2c3034] py-1 pl-3 text-[0.9rem] outline-none"
+              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 sm:text-[0.9rem]"
               onChange={(e) => {
                 setImgType(e.target.value);
               }}
@@ -296,24 +299,24 @@ function App() {
             </select>
           </div>
           <div className="space-x-1">
-            <span className="text-[0.9rem]">Amount: </span>
+            <span className="text-[0.65rem] sm:text-[0.9rem]">Amount: </span>
             <input
               name="amount"
               type="number"
               min="3"
               max="200"
-              className="rounded-lg bg-[#2c3034] py-1 pl-3 text-[0.9rem] outline-none"
+              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 sm:text-[0.9rem]"
               value={amt}
               onChange={(e) => setAmt(e.target.value)}
               onBlur={amtFunc}
             />
           </div>
           <div className="space-x-1">
-            <span className="text-[0.9rem]">Order: </span>
+            <span className="text-[0.65rem] sm:text-[0.9rem]">Order: </span>
             <select
               name="order"
               id="order"
-              className="rounded-lg bg-[#2c3034] px-3 py-1 text-[0.9rem] outline-none"
+              className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 sm:text-[0.9rem]"
               onChange={(e) => {
                 setOrder(e.target.value);
               }}
@@ -324,7 +327,7 @@ function App() {
           </div>
           {/* Toggle button  */}
           <div className="flex items-center space-x-2">
-            <span className="text-[0.9rem]">Videos: </span>
+            <span className="text-[0.65rem] sm:text-[0.9rem]">Videos: </span>
             <div className="flex h-[1.6rem] w-fit items-center">
               <button
                 className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
@@ -341,20 +344,20 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-center text-xs text-gray-400">
-          <span>
+        <div className="mt-2 flex items-center justify-center text-[0.49rem] text-gray-400 sm:text-xs px-1">
+          <span className="text-center">
             After making the changes, click the &quot;Done&quot; button to load
             the images!
           </span>
         </div>
       </div>
       {/* Show Divs  */}
-      <div className="mt-4 flex w-full flex-wrap justify-evenly gap-y-7">
+      <div className="mt-2 flex w-full flex-wrap justify-evenly gap-y-7 sm:mt-4">
         {data.hits.length !== 0 ? (
           data.hits.slice((page - 1) * amt, amt * page).map((e) => {
             return (
               <div
-                className="h-[300px] w-[30%] rounded-xl border border-gray-700"
+                className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[30%]"
                 key={e.id}
               >
                 {e.webformatURL !== undefined ? (
@@ -376,10 +379,10 @@ function App() {
                   ></video>
                 )}
                 <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
-                  <span className="text-sm">
-                    {e.tags.length > 40 ? e.tags.slice(0, 37) + "..." : e.tags}
+                  <span className="text-[0.7rem] sm:text-sm">
+                    {e.tags.length >= 40 ? e.tags.slice(0, 37) + "..." : e.tags}
                   </span>
-                  <div className="">
+                  <div className="flex">
                     <span
                       className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
                       onClick={() =>
@@ -389,7 +392,7 @@ function App() {
                       download
                     </span>
                     <span
-                      className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300"
+                      className="material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 hidden sm:block"
                       onClick={() => handleModal(e, downloadImage, modalToggle)}
                     >
                       zoom_in
@@ -401,17 +404,17 @@ function App() {
           })
         ) : (
           <div>
-            <span>No images found!</span>
+            <span>No {isVideo ? "videos" : "images"} found!</span>
           </div>
         )}
       </div>
       {Math.ceil(data.hits.length / amt) > 1 && (
-        <div className="mx-auto mt-9 flex w-fit items-start space-x-10">
+        <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
           <button
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
             onClick={prevPageFunc}
           >
-            <span className="material-symbols-outlined text-xl">
+            <span className="material-symbols-outlined text-sm sm:text-xl">
               arrow_back_ios
             </span>
           </button>
@@ -432,9 +435,9 @@ function App() {
               }}
               onBlur={handlePageChange}
               ref={inpRef}
-              className="w-[20px] bg-transparent pt-1 text-lg outline-none"
+              className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
             />
-            <span className="pt-1 text-lg">
+            <span className="pt-1 text-sm sm:text-lg">
               /{" "}
               {data !== null
                 ? Math.ceil(data.hits.length / amt)
@@ -446,7 +449,7 @@ function App() {
             onClick={nextPageFunc}
           >
             <span
-              className="material-symbols-outlined text-xl"
+              className="material-symbols-outlined text-sm sm:text-xl"
               onClick={() => {
                 console.log("Clicked on span");
               }}
@@ -457,21 +460,22 @@ function App() {
         </div>
       )}
       {/* Footer  */}
-      <div className="mt-4 flex w-full items-center justify-center space-x-2 bg-[#1f1c1c] py-3 text-sm">
-        <span>
-          &copy; 2024 PicSeek. All rights reserved. Designed and created by
-        </span>
-        <span className="font-bold">&#10024; Arbab Zafar &#10024; </span>
+      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-y-2 space-x-2 bg-[#1f1c1c] py-3 text-[0.65rem] sm:mt-4 sm:text-sm">
+        <span>&copy; 2024 PicSeek. All rights reserved.</span>
+        <div>
+          <span>Designed and created by</span>
+          <span className="font-bold">&#10024; Arbab Zafar &#10024; </span>
+        </div>
         {/* <img src={developer} alt="developer" className="w-6 rounded-full" /> */}
         <div className="flex items-center space-x-4 px-3">
           <i
-            className="fa-brands fa-instagram cursor-pointer text-[1.35rem] transition-all hover:text-gray-400"
+            className="fa-brands fa-instagram cursor-pointer text-[1rem] transition-all hover:text-gray-400 sm:text-[1.35rem]"
             onClick={() =>
               window.open("https://www.instagram.com/arbab.fr/", "_blank")
             }
           ></i>
           <i
-            className="fa-brands fa-github cursor-pointer text-[1.35rem] transition-all hover:text-gray-400"
+            className="fa-brands fa-github cursor-pointer text-[1rem] transition-all hover:text-gray-400 sm:text-[1.35rem]"
             onClick={() =>
               window.open("https://github.com/Arbab-Zafar", "_blank")
             }
