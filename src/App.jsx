@@ -100,9 +100,10 @@ let demoData = {
   ],
 };
 
+let API_KEY = import.meta.env.VITE_API_KEY;
+let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO;
+
 function App() {
-  let API_KEY = import.meta.env.VITE_API_KEY;
-  let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO;
   const [amt, setAmt] = useState(15);
   const [imgType, setImgType] = useState("photo");
   const [order, setOrder] = useState("popular");
@@ -117,6 +118,27 @@ function App() {
   const [isDisabled, setIsDisabled] = useState(false);
 
   const inpRef = useRef();
+  const videoTypeSelectRef = useRef();
+  const videoOrderSelectRef = useRef();
+
+  const fetchData = async (query, imagetype, order) => {
+    setProgress(20);
+    query = await query.replaceAll(" ", "+");
+    setProgress(20);
+    let response = await fetch(
+      isVideo
+        ? API_KEY_VIDEO +
+            `&q=${query}&video_type=${imagetype}&per_page=200&order=${order}`
+        : API_KEY +
+            `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`,
+    );
+    setProgress(40);
+    let dataa = await response.json();
+    setProgress(70);
+    setData(dataa);
+    setProgress(100);
+    console.log(dataa);
+  };
 
   const amtFunc = (e) => {
     if (e.target.value < 2) {
@@ -130,41 +152,10 @@ function App() {
     }
   };
 
-  const fetchData = async (query, imagetype, order) => {
-    setPage(1);
-    setProgress(10);
-    API_KEY =
-      API_KEY +
-      `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`;
-    query = await query.replaceAll(" ", "+");
-    setProgress(20);
-    let response = await fetch(
-      isVideo
-        ? API_KEY_VIDEO +
-            `&q=${query}&image_type=${imagetype}&per_page=200&order=${order}`
-        : API_KEY,
-    );
-    setProgress(40);
-    let dataa = await response.json();
-    setProgress(70);
-    setData(dataa);
-    setProgress(100);
-    console.log(dataa);
-  };
-
-  const btnClicked = () => {
-    if (query === "") {
-      alert("Search for the image!");
-    } else {
-      fetchData(query, imgType, order);
-    }
-  };
-
   const handlePageChange = (e) => {
     inpRef.current.blur();
     if (type > 0 && type <= Math.ceil(data.hits.length / amt)) {
       setPage(type);
-      console.log("Inside if");
     } else {
       if (e.target.value <= 0) {
         setType(1);
@@ -180,6 +171,7 @@ function App() {
     setProgress(30);
     saveAs(src, `${name}.jpg`);
     setProgress(100);
+    setIsDisabled(false);
   };
 
   const downloadVideo = async (src, name) => {
@@ -190,12 +182,20 @@ function App() {
       setProgress(50);
       const blob = await response.blob();
       setProgress(75);
+      console.log(blob);
       saveAs(blob, `${name}.mp4`);
-      setProgress(100);
+      setIsDisabled(false);
     } catch (error) {
       console.error("Error downloading video:", error);
-      setProgress(100);
     }
+    setProgress(100);
+  };
+
+  const download = (e) => {
+    setIsDisabled(true);
+    isVideo
+      ? downloadVideo(e.videos.medium.url, e.id)
+      : downloadImage(e.webformatURL, e.id);
   };
 
   const modalToggle = () => {
@@ -209,43 +209,32 @@ function App() {
     setProgress(100);
   };
 
-  const toggleButton = () => {
-    setIsVideo(!isVideo);
-  };
-
-  const prevPageFunc = () => {
-    setProgress(20);
-    page > 1 ? setPage((prevPage) => prevPage - 1) : console.log("error");
-    setProgress(100);
-  };
-
-  const nextPageFunc = () => {
-    setProgress(20);
-    page < Math.ceil(data.hits.length / amt)
-      ? setPage((prevPage) => prevPage + 1)
-      : console.log("error");
-    setProgress(100);
-  };
-
-  const download = (e) => {
-    let waitingValue = isVideo ? 8000 : 2500;
-    setIsDisabled(true);
-    isVideo
-      ? downloadVideo(e.videos.large.url, e.id)
-      : downloadImage(e.webformatURL, e.id);
-    setTimeout(() => {
-      setIsDisabled(false);
-    }, waitingValue);
+  const isVideoToggleButton = () => {
+    setIsVideo((video) => !video);
   };
 
   useEffect(() => {
     fetchData(query, imgType, order);
-  }, []);
+    // eslint-disable-next-line
+  }, [imgType, order, isVideo]);
 
   useEffect(() => {
     setType(page);
     window.scrollTo(0, 0);
   }, [page]);
+
+  useEffect(() => {
+    videoOrderSelectRef.current.value = "popular";
+    setOrder("popular");
+    if (isVideo === true) {
+      videoTypeSelectRef.current.value = "all";
+      setImgType("all");
+    } else {
+      videoTypeSelectRef.current.value = "photo";
+      setImgType("photo");
+    }
+  }, [isVideo]);
+
   return (
     <div className="bg-[#212529] text-white">
       <LoadingBar
@@ -271,11 +260,12 @@ function App() {
               onChange={(e) => {
                 setQuery(e.target.value);
               }}
+              maxLength="100"
             />
           </div>
           <button
             className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
-            onClick={btnClicked}
+            onClick={() => fetchData(query, imgType, order)}
           >
             Done
           </button>
@@ -284,44 +274,52 @@ function App() {
         {/* space-x-2 space-y-2 */}
         <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
           <div className="space-x-1">
-            <span className="text-[0.65rem] sm:text-[0.9rem]">
-              Image Type:{" "}
+            <span className="text-[0.65rem] md:text-[0.9rem]">
+              {isVideo ? "Video Type " : "Image Type "}
             </span>
             <select
               name="imageType"
               id="imageType"
-              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 sm:text-[0.9rem]"
+              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
               onChange={(e) => {
                 setImgType(e.target.value);
               }}
+              ref={videoTypeSelectRef}
             >
-              <option value="photo">Photo</option>
-              <option value="illustration">Illustration</option>
-              <option value="vector">Vector</option>
+              <option value={isVideo ? "all" : "photo"}>
+                {isVideo ? "All" : "Photo"}
+              </option>
+              <option value={isVideo ? "film" : "illustration"}>
+                {isVideo ? "Film" : "Illustration"}
+              </option>
+              <option value={isVideo ? "animation" : "vector"}>
+                {isVideo ? "Animation" : "Vector"}
+              </option>
             </select>
           </div>
           <div className="space-x-1">
-            <span className="text-[0.65rem] sm:text-[0.9rem]">Amount: </span>
+            <span className="text-[0.65rem] md:text-[0.9rem]">Amount: </span>
             <input
               name="amount"
               type="number"
               min="3"
               max="200"
-              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 sm:text-[0.9rem]"
+              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
               value={amt}
               onChange={(e) => setAmt(e.target.value)}
               onBlur={amtFunc}
             />
           </div>
           <div className="space-x-1">
-            <span className="text-[0.65rem] sm:text-[0.9rem]">Order: </span>
+            <span className="text-[0.65rem] md:text-[0.9rem]">Order: </span>
             <select
               name="order"
               id="order"
-              className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 sm:text-[0.9rem]"
+              className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 md:text-[0.9rem]"
               onChange={(e) => {
                 setOrder(e.target.value);
               }}
+              ref={videoOrderSelectRef}
             >
               <option value="popular">Popular</option>
               <option value="latest">Latest</option>
@@ -329,13 +327,13 @@ function App() {
           </div>
           {/* Toggle button  */}
           <div className="flex items-center space-x-2">
-            <span className="text-[0.65rem] sm:text-[0.9rem]">Videos: </span>
+            <span className="text-[0.65rem] md:text-[0.9rem]">Videos: </span>
             <div className="flex h-[1.6rem] w-fit items-center">
               <button
                 className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
                   isVideo ? "bg-[#1f1c1c]" : "bg-[#2c3034]"
                 }`}
-                onClick={toggleButton}
+                onClick={isVideoToggleButton}
               >
                 <span
                   className={`absolute left-[0.1rem] top-[50%] h-[1.2rem] w-5 -translate-y-[50%] transform rounded-full shadow-md transition duration-300 ease-in-out ${
@@ -346,7 +344,7 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-xs">
+        <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-[0.65rem] md:text-xs">
           <span className="text-center">
             After making the changes, click the &quot;Done&quot; button to load
             the images!
@@ -359,7 +357,7 @@ function App() {
           data.hits.slice((page - 1) * amt, amt * page).map((e) => {
             return (
               <div
-                className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[30%]"
+                className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
                 key={e.id}
               >
                 {e.webformatURL !== undefined ? (
@@ -382,7 +380,7 @@ function App() {
                   />
                 )}
                 <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
-                  <span className="text-[0.7rem] sm:text-sm">
+                  <span className="text-[0.7rem] md:text-sm">
                     {e.tags.length >= 40 ? e.tags.slice(0, 37) + "..." : e.tags}
                   </span>
                   <div className="flex">
@@ -415,7 +413,11 @@ function App() {
         <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
           <button
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={prevPageFunc}
+            onClick={() => {
+              setProgress(20);
+              page > 1 && setPage((prevPage) => prevPage - 1);
+              setProgress(100);
+            }}
           >
             <span className="material-symbols-outlined text-sm sm:text-xl">
               arrow_back_ios
@@ -429,14 +431,12 @@ function App() {
               max={Math.ceil(data.hits.length / amt)}
               value={type}
               onChange={(e) => {
-                setType(e.target.value);
+                setType(parseInt(e.target.value));
               }}
               onKeyDown={(e) => {
-                e.key === "Enter"
-                  ? handlePageChange()
-                  : console.log("Small error occured!!");
+                e.key === "Enter" && handlePageChange();
               }}
-              onBlur={handlePageChange}
+              onBlur={(e) => handlePageChange(e)}
               ref={inpRef}
               className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
             />
@@ -449,7 +449,12 @@ function App() {
           </div>
           <button
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={nextPageFunc}
+            onClick={() => {
+              setProgress(20);
+              page < Math.ceil(data.hits.length / amt) &&
+                setPage((prevPage) => prevPage + 1);
+              setProgress(100);
+            }}
           >
             <span
               className="material-symbols-outlined text-sm sm:text-xl"
@@ -463,14 +468,17 @@ function App() {
         </div>
       )}
       {/* Footer  */}
-      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-x-2 space-y-2 bg-[#1f1c1c] py-3 text-[0.65rem] sm:mt-4 sm:text-sm">
-        <span>&copy; 2024 PicSeek. All rights reserved.</span>
-        <div>
-          <span>Designed and created by</span>
-          <span className="font-bold">&#10024; Arbab Zafar &#10024; </span>
+      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-x-2 bg-[#1f1c1c] py-2 text-[0.65rem] sm:mt-4 sm:text-sm">
+        <div className="my-1 flex items-center justify-center">
+          <span className="mr-1 sm:mr-2">&copy; 2024 PicSeek.</span>
+          <span>All rights reserved.</span>
+        </div>
+        <div className="my-1 flex flex-wrap items-center justify-center">
+          <span className="mr-1">Designed & created by</span>
+          <span className="font-bold">&#10024;Arbab Zafar&#10024; </span>
         </div>
         {/* <img src={developer} alt="developer" className="w-6 rounded-full" /> */}
-        <div className="flex items-center space-x-4 px-3">
+        <div className="my-1 flex items-center space-x-4 px-3">
           <i
             className="fa-brands fa-instagram cursor-pointer text-[1rem] transition-all hover:text-gray-400 sm:text-[1.35rem]"
             onClick={() =>

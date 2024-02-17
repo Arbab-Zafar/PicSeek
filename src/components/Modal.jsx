@@ -11,8 +11,8 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     width: "width",
     height: "height",
   });
-  const [imageSize, setImageSize] = useState("");
-  const [videoSize, setVideoSize] = useState("");
+  const [imageSize, setImageSize] = useState("...");
+  const [videoSize, setVideoSize] = useState("...");
   const [isDisabled, setIsDisabled] = useState(false);
   const loadImage = (imageUrl) => {
     const img = new Image();
@@ -60,10 +60,10 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
       console.error("Error fetching image size:", error);
     }
   };
-  const getVideoSize = (url) => {
-    aufs(url, "mb")
+  const getVideoSize = async (url) => {
+    aufs(url, "mb", 20000, 10)
       .then((size) => {
-       setVideoSize(`${size.toFixed(2)} MB`)
+        setVideoSize(`${size.toFixed(2)} MB`);
       })
       .catch((error) => {
         console.error(`Error: ${error.message}`);
@@ -71,13 +71,13 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
   };
 
   function abc(src) {
-    loadImage(src);
     getImageSize(src);
+    loadImage(src);
   }
 
   function def(src) {
-    loadVideo(src);
     getVideoSize(src);
+    loadVideo(src);
   }
   let imgDim =
     e.tags.length > 51
@@ -116,7 +116,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     let waitingValue = isVideo ? 8000 : 2500;
     setIsDisabled(true);
     isVideo
-      ? downloadVideo(e.videos.large.url, e.id)
+      ? downloadVideo(e.videos.medium.url, e.id)
       : downloadImage(e.webformatURL, e.id);
     setTimeout(() => {
       setIsDisabled(false);
@@ -124,7 +124,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
   };
 
   useEffect(() => {
-    isVideo ? def(e.videos.large.url) : abc(e.webformatURL);
+    isVideo ? def(e.videos.medium.url) : abc(e.webformatURL);
   }, []);
 
   return ReactDOM.createPortal(
@@ -145,7 +145,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
           />
         ) : (
           <video
-            src={e.videos.large.url}
+            src={e.videos.medium.url}
             autoPlay
             muted
             loop
