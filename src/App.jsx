@@ -116,6 +116,7 @@ function App() {
   const [isVideo, setIsVideo] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [scrollValue, setScrollValue] = useState(0);
 
   const inpRef = useRef();
   const videoTypeSelectRef = useRef();
@@ -213,6 +214,10 @@ function App() {
     setIsVideo((video) => !video);
   };
 
+  window.addEventListener("scroll", () => {
+    setScrollValue(window.scrollY);
+  });
+
   useEffect(() => {
     fetchData(query, imgType, order);
     // eslint-disable-next-line
@@ -220,7 +225,7 @@ function App() {
 
   useEffect(() => {
     setType(page);
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0);
   }, [page]);
 
   useEffect(() => {
@@ -493,6 +498,17 @@ function App() {
           ></i>
         </div>
       </div>
+
+      {/* {scrollValue > 0 && ( */}
+      <button
+        onClick={() => window.scrollTo(0, 0)}
+        className={`xs:bottom-5 xs:right-5 xs:h-10 xs:w-10 fixed bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-gray-600 bg-[#2c3034] outline-none transition duration-300 ease-in-out ${scrollValue > 0 ? "z-20 opacity-100" : "z-0 cursor-default opacity-0"}`}
+      >
+        <span className="material-symbols-outlined xs:text-xl text-sm">
+          arrow_upward
+        </span>
+      </button>
+      {/* )} */}
 
       {showModal && <Modal {...modalData} />}
     </div>
