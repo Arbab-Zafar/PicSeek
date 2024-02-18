@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import Modal from "./components/Modal";
 import LoadingBar from "react-top-loading-bar";
 import Video from "./components/Video";
+import Footer from "./components/Footer";
 
 //Demodata to pass as the default value of data state! If some error occur in the api then this
 //demodata will act as data
@@ -260,298 +261,289 @@ function App() {
   // that the select tags are reseted or show the top/beginning value
 
   return (
-    // Main div
-    <div className="bg-[#212529] text-white">
-      {/*       Top loading bar */}
-      <LoadingBar
-        color="#f11946"
-        progress={progress}
-        onLoaderFinished={() => setProgress(0)}
-      />
+    <>
       {/*       Navbar component  */}
       <Navbar />
-      {/* Controller Main Div  */}
-      <div className="mt-5 w-full">
-        {/* Search input and Done btn */}
-        <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
-          <div className="relative flex w-[70%] items-center sm:w-[50%]">
-            {/*             Search Icon  */}
-            <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
-              search
-            </span>
-            {/*             Search input tag  */}
-            <input
-              name="search"
-              type="text"
-              className="h-9 w-full rounded-3xl border-[1px] border-gray-600 bg-[#2c3034] py-4 pl-11 text-xs outline-none sm:py-5 sm:pl-12 sm:text-sm"
-              placeholder="Search..."
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-              maxLength="100" // max length of characters as api don't allow more than 100
-            />
-          </div>
-          {/*           Done btn  */}
-          <button
-            name="done btn"
-            className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
-            onClick={() => fetchData(query, imgType, order)}
-          >
-            Done
-          </button>
-        </div>
-        {/* Actual Controller, img/video type, amt, order, video/img toggle */}
-        <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
-          {/*           Image/Video Type  */}
-          <div className="space-x-1">
-            <label
-              htmlFor="imageType"
-              className="text-[0.65rem] md:text-[0.9rem]"
-            >
-              {isVideo ? "Video Type " : "Image Type "}
-            </label>
-            <select
-              name="imageTypeName"
-              id="imageType"
-              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
-              onChange={(e) => {
-                setImgType(e.target.value);
-              }}
-              ref={videoTypeSelectRef}
-            >
-              <option value={isVideo ? "all" : "photo"}>
-                {isVideo ? "All" : "Photo"}
-              </option>
-              <option value={isVideo ? "film" : "illustration"}>
-                {isVideo ? "Film" : "Illustration"}
-              </option>
-              <option value={isVideo ? "animation" : "vector"}>
-                {isVideo ? "Animation" : "Vector"}
-              </option>
-            </select>
-          </div>
-          {/*           Amount  */}
-          <div className="space-x-1">
-            <label htmlFor="amount" className="text-[0.65rem] md:text-[0.9rem]">
-              Amount:{" "}
-            </label>
-            <input
-              name="amountName"
-              id="amount"
-              type="number"
-              min="3"
-              max="200"
-              className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
-              value={amt}
-              onChange={(e) => setAmt(e.target.value)}
-              onBlur={amtFunc}
-            />
-          </div>
-          {/*           Order  */}
-          <div className="space-x-1">
-            <label htmlFor="order" className="text-[0.65rem] md:text-[0.9rem]">
-              Order:{" "}
-            </label>
-            <select
-              name="orderName"
-              id="order"
-              className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 md:text-[0.9rem]"
-              onChange={(e) => {
-                setOrder(e.target.value);
-              }}
-              ref={videoOrderSelectRef}
-            >
-              <option value="popular">Popular</option>
-              <option value="latest">Latest</option>
-            </select>
-          </div>
-          {/* Toggle button  */}
-          <div className="flex items-center space-x-2">
-            <span className="text-[0.65rem] md:text-[0.9rem]">Videos: </span>
-            <div className="flex h-[1.6rem] w-fit items-center">
+      {/* Main div */}
+      <main>
+        <LoadingBar
+          color="#f11946"
+          progress={progress}
+          onLoaderFinished={() => setProgress(0)}
+        />
+        <div className="bg-[#212529] text-white">
+          {/*       Top loading bar */}
+          {/* Controller Main Div  */}
+          <div className="mt-5 w-full">
+            {/* Search input and Done btn */}
+            <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
+              <div className="relative flex w-[70%] items-center sm:w-[50%]">
+                {/*             Search Icon  */}
+                <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
+                  search
+                </span>
+                {/*             Search input tag  */}
+                <input
+                  name="search"
+                  type="text"
+                  className="h-9 w-full rounded-3xl border-[1px] border-gray-600 bg-[#2c3034] py-4 pl-11 text-xs outline-none sm:py-5 sm:pl-12 sm:text-sm"
+                  placeholder="Search..."
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                  }}
+                  maxLength="100" // max length of characters as api don't allow more than 100
+                />
+              </div>
+              {/*           Done btn  */}
               <button
-                name="toggleVideoBtn"
-                className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
-                  isVideo ? "bg-[#1f1c1c]" : "bg-[#2c3034]"
-                }`}
-                onClick={isVideoToggleButton}
+                name="done btn"
+                className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
+                onClick={() => fetchData(query, imgType, order)}
               >
-                <span
-                  className={`absolute left-[0.1rem] top-[50%] h-[1.2rem] w-5 -translate-y-[50%] transform rounded-full shadow-md transition duration-300 ease-in-out ${
-                    isVideo ? "translate-x-[94%]" : ""
-                  } ${isVideo ? "bg-green-200" : "bg-gray-400"}`}
-                ></span>
+                Done
               </button>
             </div>
-          </div>
-        </div>
-        {/*         little suggestion or how to use  */}
-        <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-[0.65rem] md:text-xs">
-          <span className="text-center">
-            After making the changes, click the &quot;Done&quot; button to load
-            the images!
-          </span>
-        </div>
-      </div>
-      {/* Show Divs of images/videos */}
-      <div className="mt-2 flex w-full flex-wrap justify-evenly gap-y-7 sm:mt-4">
-        {/*         Map thorugh the data state */}
-        {data.hits.length !== 0 ? (
-          data.hits.slice((page - 1) * amt, amt * page).map((e) => {
-            // slice the data (no of data
-            // a to show in one page)
-            return (
-              <div
-                className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
-                key={e.id}
-              >
-                {e.webformatURL !== undefined ? (
-                  <img
-                    src={e.webformatURL}
-                    alt={e.tags}
-                    loading="lazy"
-                    className="h-[84%] w-full rounded-t-xl object-cover hover:opacity-50"
-                  />
-                ) : (
-                  // eslint-disable-next-line
-                  <Video
-                    src={e.videos.tiny.url}
-                    autoPlay // autoplay the video
-                    muted // mute the video(there is no audio before also)
-                    loop // continously play the video
-                    playsInline
-                    controls // user can control the video, pause, mute, length etc
-                    classes="h-[84%] w-full"
-                  />
-                )}
-                <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
-                  <span className="text-[0.7rem] md:text-sm">
-                    {e.tags.length >= 40 ? e.tags.slice(0, 37) + "..." : e.tags}
-                  </span>
-                  <div className="flex">
-                    {/*                     Download icon  */}
+            {/* Actual Controller, img/video type, amt, order, video/img toggle */}
+            <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
+              {/*           Image/Video Type  */}
+              <div className="space-x-1">
+                <label
+                  htmlFor="imageType"
+                  className="text-[0.65rem] md:text-[0.9rem]"
+                >
+                  {isVideo ? "Video Type " : "Image Type "}
+                </label>
+                <select
+                  name="imageTypeName"
+                  id="imageType"
+                  className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
+                  onChange={(e) => {
+                    setImgType(e.target.value);
+                  }}
+                  ref={videoTypeSelectRef}
+                >
+                  <option value={isVideo ? "all" : "photo"}>
+                    {isVideo ? "All" : "Photo"}
+                  </option>
+                  <option value={isVideo ? "film" : "illustration"}>
+                    {isVideo ? "Film" : "Illustration"}
+                  </option>
+                  <option value={isVideo ? "animation" : "vector"}>
+                    {isVideo ? "Animation" : "Vector"}
+                  </option>
+                </select>
+              </div>
+              {/*           Amount  */}
+              <div className="space-x-1">
+                <label
+                  htmlFor="amount"
+                  className="text-[0.65rem] md:text-[0.9rem]"
+                >
+                  Amount:{" "}
+                </label>
+                <input
+                  name="amountName"
+                  id="amount"
+                  type="number"
+                  min="3"
+                  max="200"
+                  className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
+                  value={amt}
+                  onChange={(e) => setAmt(e.target.value)}
+                  onBlur={amtFunc}
+                />
+              </div>
+              {/*           Order  */}
+              <div className="space-x-1">
+                <label
+                  htmlFor="order"
+                  className="text-[0.65rem] md:text-[0.9rem]"
+                >
+                  Order:{" "}
+                </label>
+                <select
+                  name="orderName"
+                  id="order"
+                  className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 md:text-[0.9rem]"
+                  onChange={(e) => {
+                    setOrder(e.target.value);
+                  }}
+                  ref={videoOrderSelectRef}
+                >
+                  <option value="popular">Popular</option>
+                  <option value="latest">Latest</option>
+                </select>
+              </div>
+              {/* Toggle button  */}
+              <div className="flex items-center space-x-2">
+                <span className="text-[0.65rem] md:text-[0.9rem]">
+                  Videos:{" "}
+                </span>
+                <div className="flex h-[1.6rem] w-fit items-center">
+                  <button
+                    name="toggleVideoBtn"
+                    className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
+                      isVideo ? "bg-[#1f1c1c]" : "bg-[#2c3034]"
+                    }`}
+                    onClick={isVideoToggleButton}
+                  >
                     <span
-                      className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
-                      onClick={() => !isDisabled && download(e)}
-                    >
-                      download
-                    </span>
-                    {/*                     Zoom icon  */}
-                    <span
-                      className="material-symbols-outlined hidden cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 sm:block"
-                      onClick={() => handleModal(e, downloadImage, modalToggle)}
-                    >
-                      zoom_in
-                    </span>
-                  </div>
+                      className={`absolute left-[0.1rem] top-[50%] h-[1.2rem] w-5 -translate-y-[50%] transform rounded-full shadow-md transition duration-300 ease-in-out ${
+                        isVideo ? "translate-x-[94%]" : ""
+                      } ${isVideo ? "bg-green-200" : "bg-gray-400"}`}
+                    ></span>
+                  </button>
                 </div>
               </div>
-            );
-          })
-        ) : (
-          <div>
-            <span>No {isVideo ? "videos" : "images"} found!</span>
+            </div>
+            {/*         little suggestion or how to use  */}
+            <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-[0.65rem] md:text-xs">
+              <span className="text-center">
+                After making the changes, click the &quot;Done&quot; button to
+                load the images!
+              </span>
+            </div>
           </div>
-        )}
-      </div>
-      {/*       Only show if there is more than 1 page  */}
-      {Math.ceil(data.hits.length / amt) > 1 && (
-        <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
-          {/*           Previous page btn  */}
+          {/* Show Divs of images/videos */}
+          <div className="mt-2 flex w-full flex-wrap justify-evenly gap-y-7 sm:mt-4">
+            {/*         Map thorugh the data state */}
+            {data.hits.length !== 0 ? (
+              data.hits.slice((page - 1) * amt, amt * page).map((e) => {
+                // slice the data (no of data
+                // a to show in one page)
+                return (
+                  <div
+                    className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
+                    key={e.id}
+                  >
+                    {e.webformatURL !== undefined ? (
+                      <img
+                        src={e.webformatURL}
+                        alt={e.tags}
+                        loading="lazy"
+                        className="h-[84%] w-full rounded-t-xl object-cover hover:opacity-50"
+                      />
+                    ) : (
+                      // eslint-disable-next-line
+                      <Video
+                        src={e.videos.tiny.url}
+                        autoPlay // autoplay the video
+                        muted // mute the video(there is no audio before also)
+                        loop // continously play the video
+                        playsInline
+                        controls // user can control the video, pause, mute, length etc
+                        classes="h-[84%] w-full"
+                      />
+                    )}
+                    <div className="flex h-[16%] w-full items-center justify-between rounded-b-xl bg-[#0000002b] px-3 text-gray-400">
+                      <span className="text-[0.7rem] md:text-sm">
+                        {e.tags.length >= 40
+                          ? e.tags.slice(0, 37) + "..."
+                          : e.tags}
+                      </span>
+                      <div className="flex">
+                        {/*                     Download icon  */}
+                        <span
+                          className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
+                          onClick={() => !isDisabled && download(e)}
+                        >
+                          download
+                        </span>
+                        {/*                     Zoom icon  */}
+                        <span
+                          className="material-symbols-outlined hidden cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 sm:block"
+                          onClick={() =>
+                            handleModal(e, downloadImage, modalToggle)
+                          }
+                        >
+                          zoom_in
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div>
+                <span>No {isVideo ? "videos" : "images"} found!</span>
+              </div>
+            )}
+          </div>
+          {/*       Only show if there is more than 1 page  */}
+          {Math.ceil(data.hits.length / amt) > 1 && (
+            <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
+              {/*           Previous page btn  */}
+              <button
+                name="prevbtn"
+                className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
+                onClick={() => {
+                  setProgress(20);
+                  page > 1 && setPage((prevPage) => prevPage - 1);
+                  setProgress(100);
+                }}
+              >
+                <span className="material-symbols-outlined text-sm sm:text-xl">
+                  arrow_back_ios
+                </span>
+              </button>
+              <div>
+                {/*             Input page btn to direct enter the page and navigate  */}
+                <input
+                  name="pageName"
+                  id="pageInp"
+                  type="number"
+                  min="1"
+                  max={Math.ceil(data.hits.length / amt)}
+                  value={type}
+                  onChange={(e) => {
+                    setType(parseInt(e.target.value));
+                  }}
+                  onKeyDown={(e) => {
+                    e.key === "Enter" && handlePageChange();
+                  }}
+                  onBlur={(e) => handlePageChange(e)}
+                  ref={inpRef}
+                  className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
+                />
+                {/*             Out of page which is mostly 14 */}
+                <label htmlFor="pageInp" className="pt-1 text-sm sm:text-lg">
+                  / {data !== null && Math.ceil(data.hits.length / amt)}
+                </label>
+              </div>
+              {/*           Next page btn  */}
+              <button
+                name="nextBtn"
+                className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
+                onClick={() => {
+                  setProgress(20);
+                  page < Math.ceil(data.hits.length / amt) &&
+                    setPage((prevPage) => prevPage + 1);
+                  setProgress(100);
+                }}
+              >
+                <span className="material-symbols-outlined text-sm sm:text-xl">
+                  arrow_forward_ios
+                </span>
+              </button>
+            </div>
+          )}
+          {/*       Click to top btn */}
           <button
-            name="prevbtn"
-            className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={() => {
-              setProgress(20);
-              page > 1 && setPage((prevPage) => prevPage - 1);
-              setProgress(100);
-            }}
+            name="toTopBtn"
+            onClick={() => window.scrollTo(0, 0)}
+            className={`fixed bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-gray-600 bg-[#2c3034] outline-none transition duration-300 ease-in-out xs:bottom-5 xs:right-5 xs:h-10 xs:w-10 ${scrollValue > 0 ? "z-20 opacity-100" : "z-0 cursor-default opacity-0"}`}
           >
-            <span className="material-symbols-outlined text-sm sm:text-xl">
-              arrow_back_ios
+            <span className="material-symbols-outlined text-sm xs:text-xl">
+              arrow_upward
             </span>
           </button>
-          <div>
-            {/*             Input page btn to direct enter the page and navigate  */}
-            <input
-              name="pageName"
-              id="pageInp"
-              type="number"
-              min="1"
-              max={Math.ceil(data.hits.length / amt)}
-              value={type}
-              onChange={(e) => {
-                setType(parseInt(e.target.value));
-              }}
-              onKeyDown={(e) => {
-                e.key === "Enter" && handlePageChange();
-              }}
-              onBlur={(e) => handlePageChange(e)}
-              ref={inpRef}
-              className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
-            />
-            {/*             Out of page which is mostly 14 */}
-            <label htmlFor="pageInp" className="pt-1 text-sm sm:text-lg">
-              / {data !== null && Math.ceil(data.hits.length / amt)}
-            </label>
-          </div>
-          {/*           Next page btn  */}
-          <button
-            name="nextBtn"
-            className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
-            onClick={() => {
-              setProgress(20);
-              page < Math.ceil(data.hits.length / amt) &&
-                setPage((prevPage) => prevPage + 1);
-              setProgress(100);
-            }}
-          >
-            <span className="material-symbols-outlined text-sm sm:text-xl">
-              arrow_forward_ios
-            </span>
-          </button>
+          {/* Show modal component  */}
+          {showModal && <Modal {...modalData} />}
         </div>
-      )}
-      {/* Footer  */}
-      <div className="mt-3 flex w-full flex-wrap items-center justify-center space-x-2 bg-[#1f1c1c] py-2 text-[0.65rem] sm:mt-4 sm:text-sm">
-        <div className="my-1 flex items-center justify-center">
-          <span className="mr-1 sm:mr-2">&copy; 2024 PicSeek.</span>
-          <span>All rights reserved.</span>
-        </div>
-        <div className="my-1 flex flex-wrap items-center justify-center">
-          <span className="mr-1">Designed & created by</span>
-          <span className="font-bold">&#10024;Arbab Zafar&#10024; </span>
-        </div>
-        {/* <img src={developer} alt="developer" className="w-6 rounded-full" /> */}
-        <div className="my-1 flex items-center space-x-4 px-3">
-          <i
-            className="fa-brands fa-instagram cursor-pointer text-[1rem] transition-all hover:text-gray-400 sm:text-[1.35rem]"
-            onClick={() =>
-              window.open("https://www.instagram.com/arbab.fr/", "_blank")
-            }
-          ></i>
-          <i
-            className="fa-brands fa-github cursor-pointer text-[1rem] transition-all hover:text-gray-400 sm:text-[1.35rem]"
-            onClick={() =>
-              window.open("https://github.com/Arbab-Zafar", "_blank")
-            }
-          ></i>
-        </div>
-      </div>
-      {/*       Click to top btn */}
-      <button
-        name="toTopBtn"
-        onClick={() => window.scrollTo(0, 0)}
-        className={`fixed bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-gray-600 bg-[#2c3034] outline-none transition duration-300 ease-in-out xs:bottom-5 xs:right-5 xs:h-10 xs:w-10 ${scrollValue > 0 ? "z-20 opacity-100" : "z-0 cursor-default opacity-0"}`}
-      >
-        <span className="material-symbols-outlined text-sm xs:text-xl">
-          arrow_upward
-        </span>
-      </button>
-      {/* Show modal component  */}
-      {showModal && <Modal {...modalData} />}
-    </div>
+      </main>
+      <Footer />
+    </>
   );
 }
 

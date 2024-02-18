@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, memo } from "react";
 // eslint-disable-next-line
-const VideoComponent = ({src,autoPlay,muted,loop,playsInline,controls,classes}) => {
+const Video = memo(({src,autoPlay,muted,loop,playsInline,controls,classes}) => {
   console.log("Video component rendered");
 
   const videoRef = useRef(null);
@@ -43,8 +43,8 @@ const VideoComponent = ({src,autoPlay,muted,loop,playsInline,controls,classes}) 
       className={classes}
     ></video>
   );
-};
+});
 
-const Video = memo(VideoComponent);
+Video.displayName = "Video";
 
 export default Video;
