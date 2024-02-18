@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import aufs from "all-url-file-size";
 
 const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
@@ -14,7 +14,8 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
   const [imageSize, setImageSize] = useState("...");
   const [videoSize, setVideoSize] = useState("...");
   const [isDisabled, setIsDisabled] = useState(false);
-  const loadImage = (imageUrl) => {
+
+  const loadImage = useCallback((imageUrl) => {
     const img = new Image();
     img.src = imageUrl;
     img.onload = () => {
@@ -26,10 +27,10 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     img.onerror = (err) => {
       console.log(err);
     };
-    console.log("Load Image");
-  };
+  }, []);
 
-  const loadVideo = (videoUrl) => {
+  const loadVideo = useCallback((videoUrl) => {
+    console.log("Load Video");
     const video = document.createElement("video");
     video.src = videoUrl;
 
@@ -43,24 +44,24 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     video.addEventListener("error", (err) => {
       console.log(err);
     });
-  };
+  }, []);
 
-  const getImageSize = async (imageUrl) => {
+  const getImageSize = useCallback(async (imageUrl) => {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const sizeInBytes = blob.size;
-      let size = (sizeInBytes / 1024).toFixed(2) + "KB";
+      let size =
+        sizeInBytes < 1048576
+          ? (sizeInBytes / 1024).toFixed(2) + "KB"
+          : (sizeInBytes / 1048576).toFixed(2) + "MB";
       setImageSize(size);
-      if (sizeInBytes > 1048576) {
-        size = (sizeInBytes / 1048576).toFixed(2) + "MB";
-        setImageSize(size);
-      }
     } catch (error) {
       console.error("Error fetching image size:", error);
     }
-  };
-  const getVideoSize = async (url) => {
+  }, []);
+
+  const getVideoSize = useCallback(async (url) => {
     aufs(url, "mb", 20000, 10)
       .then((size) => {
         setVideoSize(`${size.toFixed(2)} MB`);
@@ -68,7 +69,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
       .catch((error) => {
         console.error(`Error: ${error.message}`);
       });
-  };
+  }, []);
 
   function abc(src) {
     getImageSize(src);
@@ -79,6 +80,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
     getVideoSize(src);
     loadVideo(src);
   }
+
   let imgDim =
     e.tags.length > 51
       ? e.tags.slice(0, 51) +
@@ -95,6 +97,7 @@ const Modal = ({ e, downloadImage, modalToggle, downloadVideo, isVideo }) => {
         imageDimensions.height +
         ") " +
         imageSize;
+
   let vidDim =
     e.tags.length > 51
       ? e.tags.slice(0, 51) +

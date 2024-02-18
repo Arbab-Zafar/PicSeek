@@ -1,25 +1,29 @@
-import { useState, useEffect, useRef } from "react";
+// Importing
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import { saveAs } from "file-saver";
 import Modal from "./components/Modal";
 import LoadingBar from "react-top-loading-bar";
 import Video from "./components/Video";
-// import developer from "./developer.jpg";
+
+//Demodata to pass as the default value of data state! If some error occur in the api then this
+//demodata will act as data
 let demoData = {
   total: 35467,
   totalHits: 500,
   hits: [
     {
-      id: 3063284,
+      id: 3063284, // this is the unique id. we use it as a key
       pageURL:
         "https://pixabay.com/photos/rose-flower-petal-floral-noble-3063284/",
-      type: "photo",
-      tags: "blue, flower, petal",
+      type: "photo", // type of the image (photo, illustration, vector)
+      tags: "blue, flower, petal", // tags of the image. we use it as a name
       previewURL:
         "https://cdn.pixabay.com/photo/2018/01/05/16/24/rose-3063284_150.jpg",
       previewWidth: 150,
       previewHeight: 99,
+      // url of the image. we use it to show the images
       webformatURL:
         "https://hips.hearstapps.com/hmg-prod/images/close-up-of-purple-crocus-flowers-united-kingdom-uk-royalty-free-image-1674159456.jpg",
       webformatWidth: 640,
@@ -100,32 +104,39 @@ let demoData = {
   ],
 };
 
-let API_KEY = import.meta.env.VITE_API_KEY;
-let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO;
+// importing API key from .env files
+let API_KEY = import.meta.env.VITE_API_KEY; //api key for image
+let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO; //api key for videos
 
 function App() {
-  const [amt, setAmt] = useState(15);
-  const [imgType, setImgType] = useState("photo");
-  const [order, setOrder] = useState("popular");
-  const [query, setQuery] = useState("flowers");
-  const [page, setPage] = useState(1);
-  const [type, setType] = useState(1);
-  const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState(null);
-  const [data, setData] = useState(demoData);
-  const [isVideo, setIsVideo] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [scrollValue, setScrollValue] = useState(0);
+  //States
+  const [amt, setAmt] = useState(15); //No of images/videos to be shown in one page
+  const [imgType, setImgType] = useState("photo"); //Type of image/video like for image it is "photo",
+  // "vector" etc. and for video it is "animation" and "film"
+  const [order, setOrder] = useState("popular"); // Order - "Popular" and 'Latest'
+  const [query, setQuery] = useState("flowers"); // Search value
+  const [page, setPage] = useState(1); // Page varies from 1 to 14
+  const [type, setType] = useState(1); // state to change the value of input tag of page changer (near line 443)
+  const [showModal, setShowModal] = useState(false); // state to whether show the modal/popup when we zoom
+  const [modalData, setModalData] = useState(null); // data to be passed in modal/popup
+  const [data, setData] = useState(demoData); // Actual data of images/videos
+  const [isVideo, setIsVideo] = useState(false); // state of whether we want to show images or videos
+  const [progress, setProgress] = useState(0); // top progress bar
+  const [isDisabled, setIsDisabled] = useState(false); // state to disable download btn after the
+  // click it will be abled after the download is complete
+  const [scrollValue, setScrollValue] = useState(0); // state of how much the website is scrolled vertically
 
-  const inpRef = useRef();
-  const videoTypeSelectRef = useRef();
-  const videoOrderSelectRef = useRef();
+  // All Refs
+  const inpRef = useRef(); //input of page
+  const videoTypeSelectRef = useRef(); // type select tag
+  const videoOrderSelectRef = useRef(); // order select tag
+
+  //Main function to fetch the data from API of pixabay
 
   const fetchData = async (query, imagetype, order) => {
+    //set progress of progress bar
     setProgress(20);
-    query = await query.replaceAll(" ", "+");
-    setProgress(20);
+    query = await query.replaceAll(" ", "+"); // if it is "yellow flower" then convert into "yellow+flower"
     let response = await fetch(
       isVideo
         ? API_KEY_VIDEO +
@@ -136,12 +147,13 @@ function App() {
     setProgress(40);
     let dataa = await response.json();
     setProgress(70);
+    //Store the data in data "state"
     setData(dataa);
     setProgress(100);
-    console.log(dataa);
   };
 
   const amtFunc = (e) => {
+    //As the API requires it between 3 to 200
     if (e.target.value < 2) {
       e.target.value = 3;
       setAmt(3);
@@ -154,13 +166,14 @@ function App() {
   };
 
   const handlePageChange = (e) => {
-    inpRef.current.blur();
+    inpRef.current.blur(); // remove the focus from the input tag of page
+    // if the value of input page tag is b/w 1 to the total no. of pages
     if (type > 0 && type <= Math.ceil(data.hits.length / amt)) {
       setPage(type);
     } else {
       if (e.target.value <= 0) {
-        setType(1);
-        setPage(1);
+        setType(1); // this is the value of input page tag
+        setPage(1); // this is the main page state
       } else if (e.target.value > Math.ceil(data.hits.length / amt)) {
         setType(Math.ceil(data.hits.length / amt));
         setPage(Math.ceil(data.hits.length / amt));
@@ -170,63 +183,68 @@ function App() {
 
   const downloadImage = (src, name) => {
     setProgress(30);
-    saveAs(src, `${name}.jpg`);
+    saveAs(src, `${name}.jpg`); // it is a function given by a module
     setProgress(100);
     setIsDisabled(false);
   };
 
-  const downloadVideo = async (src, name) => {
+  const downloadVideo = useCallback(async (src, name) => {
     setProgress(10);
     try {
       setProgress(25);
       const response = await fetch(src);
       setProgress(50);
+      // convert into blob as the normal url of video opens the video in new tab
       const blob = await response.blob();
       setProgress(75);
-      console.log(blob);
-      saveAs(blob, `${name}.mp4`);
-      setIsDisabled(false);
+      saveAs(blob, `${name}.mp4`); // func given by module
+      setIsDisabled(false); // as the download is complete, make all the download btn abled/clickable
     } catch (error) {
       console.error("Error downloading video:", error);
     }
     setProgress(100);
-  };
+  }, []);
 
   const download = (e) => {
+    // it is the checkpoint. here we check which func to call. if isVideo is true then
+    // call download func of video otherwise of image
     setIsDisabled(true);
     isVideo
-      ? downloadVideo(e.videos.medium.url, e.id)
+      ? downloadVideo(e.videos.medium.url, e.id) //here e is the data coming from loop [data.hits[index]]
       : downloadImage(e.webformatURL, e.id);
   };
 
   const modalToggle = () => {
-    setShowModal((prevState) => !prevState);
+    setShowModal((prevState) => !prevState); // if true then make false, if false make it true
   };
 
   const handleModal = (e, downloadImage, modalToggle) => {
     setProgress(30);
-    setModalData({ e, downloadImage, modalToggle, downloadVideo, isVideo }); // Store the data in state
+    setModalData({ e, downloadImage, modalToggle, downloadVideo, isVideo }); // Store the data in state to be
+    // passed as props to the modal/popup component
     modalToggle();
     setProgress(100);
   };
 
   const isVideoToggleButton = () => {
-    setIsVideo((video) => !video);
+    setIsVideo((video) => !video); // toggle b/w image and video. Whether to show image or video
   };
 
   window.addEventListener("scroll", () => {
-    setScrollValue(window.scrollY);
+    //event listener to scroll
+    setScrollValue(window.scrollY); // set scroll value. This is will decide
+    // below whether to show the up to top btn or not
   });
 
   useEffect(() => {
     fetchData(query, imgType, order);
     // eslint-disable-next-line
-  }, [imgType, order, isVideo]);
+  }, [imgType, order, isVideo]); //when any of the following value chnages then call the fetchdata function
 
   useEffect(() => {
     setType(page);
-    // window.scrollTo(0, 0);
-  }, [page]);
+  }, [page]); //after the page is changed make sure that the "type" state is also
+  // changed (value of input page tag). This is not so imp. func
 
   useEffect(() => {
     videoOrderSelectRef.current.value = "popular";
@@ -238,24 +256,30 @@ function App() {
       videoTypeSelectRef.current.value = "photo";
       setImgType("photo");
     }
-  }, [isVideo]);
+  }, [isVideo]); // after we toggle b/w image and video then make sure
+  // that the select tags are reseted or show the top/beginning value
 
   return (
+    // Main div
     <div className="bg-[#212529] text-white">
+      {/*       Top loading bar */}
       <LoadingBar
         color="#f11946"
         progress={progress}
         onLoaderFinished={() => setProgress(0)}
       />
+      {/*       Navbar component  */}
       <Navbar />
-      {/* Controller  */}
+      {/* Controller Main Div  */}
       <div className="mt-5 w-full">
-        {/* Search  */}
+        {/* Search input and Done btn */}
         <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
           <div className="relative flex w-[70%] items-center sm:w-[50%]">
+            {/*             Search Icon  */}
             <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
               search
             </span>
+            {/*             Search input tag  */}
             <input
               name="search"
               type="text"
@@ -265,25 +289,30 @@ function App() {
               onChange={(e) => {
                 setQuery(e.target.value);
               }}
-              maxLength="100"
+              maxLength="100" // max length of characters as api don't allow more than 100
             />
           </div>
+          {/*           Done btn  */}
           <button
+            name="done btn"
             className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
             onClick={() => fetchData(query, imgType, order)}
           >
             Done
           </button>
         </div>
-        {/* Actual Controller */}
-        {/* space-x-2 space-y-2 */}
+        {/* Actual Controller, img/video type, amt, order, video/img toggle */}
         <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
+          {/*           Image/Video Type  */}
           <div className="space-x-1">
-            <span className="text-[0.65rem] md:text-[0.9rem]">
+            <label
+              htmlFor="imageType"
+              className="text-[0.65rem] md:text-[0.9rem]"
+            >
               {isVideo ? "Video Type " : "Image Type "}
-            </span>
+            </label>
             <select
-              name="imageType"
+              name="imageTypeName"
               id="imageType"
               className="rounded-lg bg-[#2c3034] py-1 pl-2 text-[0.65rem] outline-none sm:pl-3 md:text-[0.9rem]"
               onChange={(e) => {
@@ -302,10 +331,14 @@ function App() {
               </option>
             </select>
           </div>
+          {/*           Amount  */}
           <div className="space-x-1">
-            <span className="text-[0.65rem] md:text-[0.9rem]">Amount: </span>
+            <label htmlFor="amount" className="text-[0.65rem] md:text-[0.9rem]">
+              Amount:{" "}
+            </label>
             <input
-              name="amount"
+              name="amountName"
+              id="amount"
               type="number"
               min="3"
               max="200"
@@ -315,10 +348,13 @@ function App() {
               onBlur={amtFunc}
             />
           </div>
+          {/*           Order  */}
           <div className="space-x-1">
-            <span className="text-[0.65rem] md:text-[0.9rem]">Order: </span>
+            <label htmlFor="order" className="text-[0.65rem] md:text-[0.9rem]">
+              Order:{" "}
+            </label>
             <select
-              name="order"
+              name="orderName"
               id="order"
               className="rounded-lg bg-[#2c3034] px-2 py-1 text-[0.65rem] outline-none sm:px-3 md:text-[0.9rem]"
               onChange={(e) => {
@@ -335,6 +371,7 @@ function App() {
             <span className="text-[0.65rem] md:text-[0.9rem]">Videos: </span>
             <div className="flex h-[1.6rem] w-fit items-center">
               <button
+                name="toggleVideoBtn"
                 className={`relative flex h-6 w-11 items-center rounded-full border border-gray-400 transition duration-300 ease-in-out focus:outline-none ${
                   isVideo ? "bg-[#1f1c1c]" : "bg-[#2c3034]"
                 }`}
@@ -349,6 +386,7 @@ function App() {
             </div>
           </div>
         </div>
+        {/*         little suggestion or how to use  */}
         <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-[0.65rem] md:text-xs">
           <span className="text-center">
             After making the changes, click the &quot;Done&quot; button to load
@@ -356,10 +394,13 @@ function App() {
           </span>
         </div>
       </div>
-      {/* Show Divs  */}
+      {/* Show Divs of images/videos */}
       <div className="mt-2 flex w-full flex-wrap justify-evenly gap-y-7 sm:mt-4">
+        {/*         Map thorugh the data state */}
         {data.hits.length !== 0 ? (
           data.hits.slice((page - 1) * amt, amt * page).map((e) => {
+            // slice the data (no of data
+            // a to show in one page)
             return (
               <div
                 className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
@@ -376,11 +417,11 @@ function App() {
                   // eslint-disable-next-line
                   <Video
                     src={e.videos.tiny.url}
-                    autoPlay
-                    muted
-                    loop
+                    autoPlay // autoplay the video
+                    muted // mute the video(there is no audio before also)
+                    loop // continously play the video
                     playsInline
-                    controls
+                    controls // user can control the video, pause, mute, length etc
                     classes="h-[84%] w-full"
                   />
                 )}
@@ -389,14 +430,14 @@ function App() {
                     {e.tags.length >= 40 ? e.tags.slice(0, 37) + "..." : e.tags}
                   </span>
                   <div className="flex">
+                    {/*                     Download icon  */}
                     <span
                       className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
-                      onClick={() =>
-                        !isDisabled ? download(e) : console.log("Disabled")
-                      }
+                      onClick={() => !isDisabled && download(e)}
                     >
                       download
                     </span>
+                    {/*                     Zoom icon  */}
                     <span
                       className="material-symbols-outlined hidden cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 sm:block"
                       onClick={() => handleModal(e, downloadImage, modalToggle)}
@@ -414,9 +455,12 @@ function App() {
           </div>
         )}
       </div>
+      {/*       Only show if there is more than 1 page  */}
       {Math.ceil(data.hits.length / amt) > 1 && (
         <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
+          {/*           Previous page btn  */}
           <button
+            name="prevbtn"
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
             onClick={() => {
               setProgress(20);
@@ -429,8 +473,10 @@ function App() {
             </span>
           </button>
           <div>
+            {/*             Input page btn to direct enter the page and navigate  */}
             <input
-              name="page"
+              name="pageName"
+              id="pageInp"
               type="number"
               min="1"
               max={Math.ceil(data.hits.length / amt)}
@@ -445,14 +491,14 @@ function App() {
               ref={inpRef}
               className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
             />
-            <span className="pt-1 text-sm sm:text-lg">
-              /{" "}
-              {data !== null
-                ? Math.ceil(data.hits.length / amt)
-                : console.log("Data has not came")}
-            </span>
+            {/*             Out of page which is mostly 14 */}
+            <label htmlFor="pageInp" className="pt-1 text-sm sm:text-lg">
+              / {data !== null && Math.ceil(data.hits.length / amt)}
+            </label>
           </div>
+          {/*           Next page btn  */}
           <button
+            name="nextBtn"
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
             onClick={() => {
               setProgress(20);
@@ -461,12 +507,7 @@ function App() {
               setProgress(100);
             }}
           >
-            <span
-              className="material-symbols-outlined text-sm sm:text-xl"
-              onClick={() => {
-                console.log("Clicked on span");
-              }}
-            >
+            <span className="material-symbols-outlined text-sm sm:text-xl">
               arrow_forward_ios
             </span>
           </button>
@@ -498,18 +539,17 @@ function App() {
           ></i>
         </div>
       </div>
-
-      {/* {scrollValue > 0 && ( */}
+      {/*       Click to top btn */}
       <button
+        name="toTopBtn"
         onClick={() => window.scrollTo(0, 0)}
-        className={`xs:bottom-5 xs:right-5 xs:h-10 xs:w-10 fixed bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-gray-600 bg-[#2c3034] outline-none transition duration-300 ease-in-out ${scrollValue > 0 ? "z-20 opacity-100" : "z-0 cursor-default opacity-0"}`}
+        className={`fixed bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-gray-600 bg-[#2c3034] outline-none transition duration-300 ease-in-out xs:bottom-5 xs:right-5 xs:h-10 xs:w-10 ${scrollValue > 0 ? "z-20 opacity-100" : "z-0 cursor-default opacity-0"}`}
       >
-        <span className="material-symbols-outlined xs:text-xl text-sm">
+        <span className="material-symbols-outlined text-sm xs:text-xl">
           arrow_upward
         </span>
       </button>
-      {/* )} */}
-
+      {/* Show modal component  */}
       {showModal && <Modal {...modalData} />}
     </div>
   );
