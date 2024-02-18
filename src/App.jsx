@@ -1,23 +1,13 @@
-<<<<<<< HEAD
 // Importing
 import { useState, useEffect, useRef, useCallback } from "react";
-=======
-// Importing 
-import { useState, useEffect, useRef } from "react";
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
 import "./App.css";
 import Navbar from "./components/Navbar";
 import { saveAs } from "file-saver";
 import Modal from "./components/Modal";
 import LoadingBar from "react-top-loading-bar";
 import Video from "./components/Video";
-<<<<<<< HEAD
 
 //Demodata to pass as the default value of data state! If some error occur in the api then this
-=======
-import developer from "./developer.jpg";
-//Demodata to pass as the default value of data state! If some error occur in the api then this 
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
 //demodata will act as data
 let demoData = {
   total: 35467,
@@ -33,12 +23,8 @@ let demoData = {
         "https://cdn.pixabay.com/photo/2018/01/05/16/24/rose-3063284_150.jpg",
       previewWidth: 150,
       previewHeight: 99,
-<<<<<<< HEAD
       // url of the image. we use it to show the images
       webformatURL:
-=======
-      webformatURL: // url of the image. we use it to show the images
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
         "https://hips.hearstapps.com/hmg-prod/images/close-up-of-purple-crocus-flowers-united-kingdom-uk-royalty-free-image-1674159456.jpg",
       webformatWidth: 640,
       webformatHeight: 426,
@@ -124,13 +110,8 @@ let API_KEY_VIDEO = import.meta.env.VITE_API_KEY_VIDEO; //api key for videos
 
 function App() {
   //States
-<<<<<<< HEAD
   const [amt, setAmt] = useState(15); //No of images/videos to be shown in one page
   const [imgType, setImgType] = useState("photo"); //Type of image/video like for image it is "photo",
-=======
-  const [amt, setAmt] = useState(15);//No of images/videos to be shown in one page
-  const [imgType, setImgType] = useState("photo"); //Type of image/video like for image it is "photo", 
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
   // "vector" etc. and for video it is "animation" and "film"
   const [order, setOrder] = useState("popular"); // Order - "Popular" and 'Latest'
   const [query, setQuery] = useState("flowers"); // Search value
@@ -149,13 +130,9 @@ function App() {
   const inpRef = useRef(); //input of page
   const videoTypeSelectRef = useRef(); // type select tag
   const videoOrderSelectRef = useRef(); // order select tag
-<<<<<<< HEAD
 
   //Main function to fetch the data from API of pixabay
-=======
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
 
-  //Main function to fetch the data from API of pixabay
   const fetchData = async (query, imagetype, order) => {
     //set progress of progress bar
     setProgress(20);
@@ -195,11 +172,7 @@ function App() {
       setPage(type);
     } else {
       if (e.target.value <= 0) {
-<<<<<<< HEAD
         setType(1); // this is the value of input page tag
-=======
-        setType(1);// this is the value of input page tag
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
         setPage(1); // this is the main page state
       } else if (e.target.value > Math.ceil(data.hits.length / amt)) {
         setType(Math.ceil(data.hits.length / amt));
@@ -224,10 +197,6 @@ function App() {
       // convert into blob as the normal url of video opens the video in new tab
       const blob = await response.blob();
       setProgress(75);
-<<<<<<< HEAD
-=======
-      console.log(blob);
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       saveAs(blob, `${name}.mp4`); // func given by module
       setIsDisabled(false); // as the download is complete, make all the download btn abled/clickable
     } catch (error) {
@@ -237,28 +206,16 @@ function App() {
   }, []);
 
   const download = (e) => {
-<<<<<<< HEAD
     // it is the checkpoint. here we check which func to call. if isVideo is true then
     // call download func of video otherwise of image
     setIsDisabled(true);
     isVideo
       ? downloadVideo(e.videos.medium.url, e.id) //here e is the data coming from loop [data.hits[index]]
-=======
-    // it is the checkpoint. here we check which func to call. if isVideo is true then 
-    // call download func of video otherwise of image
-    setIsDisabled(true);
-    isVideo
-      ? downloadVideo(e.videos.medium.url, e.id)//here e is the data coming from loop [data.hits[index]]
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       : downloadImage(e.webformatURL, e.id);
   };
 
   const modalToggle = () => {
-<<<<<<< HEAD
     setShowModal((prevState) => !prevState); // if true then make false, if false make it true
-=======
-    setShowModal((prevState) => !prevState);// if true then make false, if false make it true
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
   };
 
   const handleModal = (e, downloadImage, modalToggle) => {
@@ -273,17 +230,12 @@ function App() {
     setIsVideo((video) => !video); // toggle b/w image and video. Whether to show image or video
   };
 
-<<<<<<< HEAD
   window.addEventListener("scroll", () => {
     //event listener to scroll
     setScrollValue(window.scrollY); // set scroll value. This is will decide
-=======
-  window.addEventListener("scroll", () => { //event listener to scroll
-    setScrollValue(window.scrollY); // set scroll value. This is will decide 
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
     // below whether to show the up to top btn or not
   });
- 
+
   useEffect(() => {
     fetchData(query, imgType, order);
     // eslint-disable-next-line
@@ -291,11 +243,7 @@ function App() {
 
   useEffect(() => {
     setType(page);
-<<<<<<< HEAD
   }, [page]); //after the page is changed make sure that the "type" state is also
-=======
-  }, [page]);//after the page is changed make sure that the "type" state is also
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
   // changed (value of input page tag). This is not so imp. func
 
   useEffect(() => {
@@ -314,40 +262,24 @@ function App() {
   return (
     // Main div
     <div className="bg-[#212529] text-white">
-<<<<<<< HEAD
       {/*       Top loading bar */}
-=======
-{/*       Top loading bar */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       <LoadingBar
         color="#f11946"
         progress={progress}
         onLoaderFinished={() => setProgress(0)}
       />
-<<<<<<< HEAD
       {/*       Navbar component  */}
-=======
-{/*       Navbar component  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       <Navbar />
       {/* Controller Main Div  */}
       <div className="mt-5 w-full">
         {/* Search input and Done btn */}
         <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
           <div className="relative flex w-[70%] items-center sm:w-[50%]">
-<<<<<<< HEAD
             {/*             Search Icon  */}
             <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
               search
             </span>
             {/*             Search input tag  */}
-=======
-{/*             Search Icon  */}
-            <span className="material-symbols-outlined absolute left-[17px] top-[0.35rem] text-lg sm:top-auto sm:text-[1.35rem]">
-              search
-            </span>
-{/*             Search input tag  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
             <input
               name="search"
               type="text"
@@ -360,11 +292,7 @@ function App() {
               maxLength="100" // max length of characters as api don't allow more than 100
             />
           </div>
-<<<<<<< HEAD
           {/*           Done btn  */}
-=======
-{/*           Done btn  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <button
             name="done btn"
             className="h-7 rounded-lg bg-[#2c3034] bg-gradient-to-r from-[#2c3034] to-[#1f1c1c] px-4 text-xs outline outline-1 outline-gray-400 transition-all duration-300 hover:outline-offset-2 active:translate-y-1 sm:h-9 sm:text-sm"
@@ -375,11 +303,7 @@ function App() {
         </div>
         {/* Actual Controller, img/video type, amt, order, video/img toggle */}
         <div className="mt-0 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-3 p-1 sm:mt-4 sm:justify-around sm:gap-0 sm:p-0">
-<<<<<<< HEAD
           {/*           Image/Video Type  */}
-=======
-{/*           Image/Video Type  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <div className="space-x-1">
             <label
               htmlFor="imageType"
@@ -407,11 +331,7 @@ function App() {
               </option>
             </select>
           </div>
-<<<<<<< HEAD
           {/*           Amount  */}
-=======
-{/*           Amount  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <div className="space-x-1">
             <label htmlFor="amount" className="text-[0.65rem] md:text-[0.9rem]">
               Amount:{" "}
@@ -428,11 +348,7 @@ function App() {
               onBlur={amtFunc}
             />
           </div>
-<<<<<<< HEAD
           {/*           Order  */}
-=======
-{/*           Order  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <div className="space-x-1">
             <label htmlFor="order" className="text-[0.65rem] md:text-[0.9rem]">
               Order:{" "}
@@ -470,11 +386,7 @@ function App() {
             </div>
           </div>
         </div>
-<<<<<<< HEAD
         {/*         little suggestion or how to use  */}
-=======
-{/*         little suggestion or how to use  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
         <div className="mt-2 flex items-center justify-center px-1 text-[0.49rem] text-gray-400 sm:text-[0.65rem] md:text-xs">
           <span className="text-center">
             After making the changes, click the &quot;Done&quot; button to load
@@ -484,16 +396,10 @@ function App() {
       </div>
       {/* Show Divs of images/videos */}
       <div className="mt-2 flex w-full flex-wrap justify-evenly gap-y-7 sm:mt-4">
-<<<<<<< HEAD
         {/*         Map thorugh the data state */}
         {data.hits.length !== 0 ? (
           data.hits.slice((page - 1) * amt, amt * page).map((e) => {
             // slice the data (no of data
-=======
-{/*         Map thorugh the data state */}
-        {data.hits.length !== 0 ? ( 
-          data.hits.slice((page - 1) * amt, amt * page).map((e) => { // slice the data (no of data
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
             // a to show in one page)
             return (
               <div
@@ -512,11 +418,7 @@ function App() {
                   <Video
                     src={e.videos.tiny.url}
                     autoPlay // autoplay the video
-<<<<<<< HEAD
                     muted // mute the video(there is no audio before also)
-=======
-                    muted // mute the video(there is no audio before also) 
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
                     loop // continously play the video
                     playsInline
                     controls // user can control the video, pause, mute, length etc
@@ -528,22 +430,14 @@ function App() {
                     {e.tags.length >= 40 ? e.tags.slice(0, 37) + "..." : e.tags}
                   </span>
                   <div className="flex">
-<<<<<<< HEAD
                     {/*                     Download icon  */}
-=======
-{/*                     Download icon  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
                     <span
                       className={`material-symbols-outlined cursor-pointer rounded-full px-2 py-1 text-xl ${!isDisabled && "hover:bg-[#1f1c1c] hover:text-gray-300"} ${isDisabled && "text-gray-700"}`}
                       onClick={() => !isDisabled && download(e)}
                     >
                       download
                     </span>
-<<<<<<< HEAD
                     {/*                     Zoom icon  */}
-=======
-{/*                     Zoom icon  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
                     <span
                       className="material-symbols-outlined hidden cursor-pointer rounded-full px-2 py-1 text-xl hover:bg-[#1f1c1c] hover:text-gray-300 sm:block"
                       onClick={() => handleModal(e, downloadImage, modalToggle)}
@@ -561,17 +455,10 @@ function App() {
           </div>
         )}
       </div>
-<<<<<<< HEAD
       {/*       Only show if there is more than 1 page  */}
       {Math.ceil(data.hits.length / amt) > 1 && (
         <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
           {/*           Previous page btn  */}
-=======
-{/*       Only show if there is more than 1 page  */}
-      {Math.ceil(data.hits.length / amt) > 1 && (
-        <div className="mx-auto mt-3 flex w-fit items-start space-x-5 sm:mt-9 sm:space-x-10">
-{/*           Previous page btn  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <button
             name="prevbtn"
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
@@ -586,11 +473,7 @@ function App() {
             </span>
           </button>
           <div>
-<<<<<<< HEAD
             {/*             Input page btn to direct enter the page and navigate  */}
-=======
-{/*             Input page btn to direct enter the page and navigate  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
             <input
               name="pageName"
               id="pageInp"
@@ -608,24 +491,12 @@ function App() {
               ref={inpRef}
               className="w-[17px] bg-transparent pt-1 text-sm outline-none sm:w-[20px] sm:text-lg"
             />
-<<<<<<< HEAD
             {/*             Out of page which is mostly 14 */}
             <label htmlFor="pageInp" className="pt-1 text-sm sm:text-lg">
               / {data !== null && Math.ceil(data.hits.length / amt)}
             </label>
           </div>
           {/*           Next page btn  */}
-=======
-{/*             Out of page which is mostly 14 */}
-            <span className="pt-1 text-sm sm:text-lg">
-              /{" "}
-              {data !== null
-                ? Math.ceil(data.hits.length / amt)
-                : console.log("Data has not came")}
-            </span>
-          </div>
-{/*           Next page btn  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
           <button
             name="nextBtn"
             className="flex items-center justify-center rounded-full px-2 py-1 pl-3 transition-all hover:bg-[#0000002b] active:translate-x-[0.2rem]"
@@ -636,13 +507,7 @@ function App() {
               setProgress(100);
             }}
           >
-<<<<<<< HEAD
             <span className="material-symbols-outlined text-sm sm:text-xl">
-=======
-            <span
-              className="material-symbols-outlined text-sm sm:text-xl"
-            >
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
               arrow_forward_ios
             </span>
           </button>
@@ -674,11 +539,7 @@ function App() {
           ></i>
         </div>
       </div>
-<<<<<<< HEAD
       {/*       Click to top btn */}
-=======
-{/*       Click to top btn */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       <button
         name="toTopBtn"
         onClick={() => window.scrollTo(0, 0)}
@@ -688,11 +549,7 @@ function App() {
           arrow_upward
         </span>
       </button>
-<<<<<<< HEAD
       {/* Show modal component  */}
-=======
-{/* Show modal component  */}
->>>>>>> 892f0b08c8341d583817297e0a2bca7d4c30190a
       {showModal && <Modal {...modalData} />}
     </div>
   );
