@@ -274,7 +274,7 @@ function App() {
         <div className="bg-[#212529] text-white">
           {/*       Top loading bar */}
           {/* Controller Main Div  */}
-          <div className="mt-5 w-full">
+          <div className="mt-3 w-full sm:mt-5">
             {/* Search input and Done btn */}
             <div className="flex w-full items-center justify-center gap-5 px-[0.35rem] py-4 sm:gap-10">
               <div className="relative flex w-[70%] items-center sm:w-[50%]">
@@ -292,6 +292,9 @@ function App() {
                   onChange={(e) => {
                     setQuery(e.target.value);
                   }}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && fetchData(query, imgType, order)
+                  }
                   maxLength="100" // max length of characters as api don't allow more than 100
                 />
               </div>
@@ -414,7 +417,7 @@ function App() {
                 // a to show in one page)
                 return (
                   <div
-                    className="h-[300px] w-[95%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
+                    className="h-[300px] w-[92%] rounded-xl border border-gray-700 sm:w-[45%] md:w-[30%]"
                     key={e.id}
                   >
                     {e.webformatURL !== undefined ? (
